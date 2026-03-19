@@ -1,5 +1,11 @@
-node_modules
+cat > .gitignore << 'EOF'
+node_modules/
 .env
-dist
-.next
-coverage
+.env.local
+.env.production
+dist/
+.next/
+build/
+*.log
+.DS_Store
+EOF
