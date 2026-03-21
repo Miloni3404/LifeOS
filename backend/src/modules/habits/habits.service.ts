@@ -27,6 +27,43 @@ export class HabitsService {
     private readonly logsService: LogsService,
   ) {}
 
+  private getTodayRange(timezone = 'UTC'): { start: Date; end: Date } {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    const localDate = formatter.format(now); // "2026-03-21"
+
+    // Parse as local midnight → convert to UTC
+    const start = new Date(`${localDate}T00:00:00`);
+    const end = new Date(`${localDate}T23:59:59.999`);
+
+    // Adjust for timezone offset
+    const offsetMs = now.getTimezoneOffset() * 60 * 1000; // server is UTC so offset=0
+    // Use Intl to get the actual UTC times for local midnight
+    const startUTC = new Date(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      }).format(now),
+    );
+    const utcStart = new Date(now);
+    utcStart.setUTCHours(0, 0, 0, 0);
+    const utcEnd = new Date(now);
+    utcEnd.setUTCHours(23, 59, 59, 999);
+
+    return { start: utcStart, end: utcEnd };
+  }
+
   // Get habits with today's completion status
   async findAll(userId: string): Promise<any[]> {
     const habits = await this.habitsRepo.find({
@@ -40,13 +77,11 @@ export class HabitsService {
     // Attach completedToday and recentCompletions to each habit
     return Promise.all(
       habits.map(async (habit) => {
+        const { start: todayStart, end: todayEnd } = this.getTodayRange();
         const todayLog = await this.habitLogsRepo.findOne({
           where: {
             habitId: habit.id,
-            completedAt: Between(
-              new Date(today.setHours(0, 0, 0, 0)),
-              new Date(new Date().setHours(23, 59, 59, 999)),
-            ),
+            completedAt: Between(todayStart, todayEnd),
           },
         });
 
@@ -101,14 +136,11 @@ export class HabitsService {
     const habit = await this.findOne(id, userId);
 
     // Prevent double check-in same day
-    const today = new Date();
+    const { start, end } = this.getTodayRange();
     const existingLog = await this.habitLogsRepo.findOne({
       where: {
         habitId: habit.id,
-        completedAt: Between(
-          new Date(today.setHours(0, 0, 0, 0)),
-          new Date(new Date().setHours(23, 59, 59, 999)),
-        ),
+        completedAt: Between(start, end),
       },
     });
 
@@ -166,16 +198,13 @@ export class HabitsService {
 
   // Undo today's check-in
   async undoCheckIn(id: string, userId: string): Promise<Habit> {
+    const { start: s, end: e } = this.getTodayRange();
     const habit = await this.findOne(id, userId);
-    const today = new Date();
 
     const todayLog = await this.habitLogsRepo.findOne({
       where: {
         habitId: habit.id,
-        completedAt: Between(
-          new Date(today.setHours(0, 0, 0, 0)),
-          new Date(new Date().setHours(23, 59, 59, 999)),
-        ),
+        completedAt: Between(s, e),
       },
     });
 
@@ -221,12 +250,12 @@ export class HabitsService {
       };
     }
 
-    const today = new Date();
+    const { start: todayStart } = this.getTodayRange();
     const todayLogs = await this.habitLogsRepo
       .createQueryBuilder('log')
       .where('log.userId = :userId', { userId })
       .andWhere('log.completedAt >= :start', {
-        start: new Date(today.setHours(0, 0, 0, 0)),
+        start: todayStart,
       })
       .getMany();
 

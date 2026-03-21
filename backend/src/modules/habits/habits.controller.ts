@@ -55,7 +55,7 @@ export class HabitsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: { note?: string },
   ) {
-    return this.habitsService.checkIn(id, user.id, body.note);
+    return this.habitsService.checkIn(id, user.id, body?.note);
   }
 
   @Delete(':id/check-in/today')

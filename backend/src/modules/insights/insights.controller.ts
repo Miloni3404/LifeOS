@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
 import { InsightsService } from './insights.service';
@@ -15,7 +13,15 @@ export class InsightsController {
   constructor(private readonly insightsService: InsightsService) {}
 
   @Get('dashboard')
-  getDashboard(@CurrentUser() user: User) {
-    return this.insightsService.getDashboardInsights(user.id);
+  @ApiQuery({ name: 'timezone', required: false, example: 'Asia/Kolkata' })
+  getDashboard(
+    @CurrentUser() user: User,
+    @Query('timezone') timezone?: string,
+  ) {
+    // Default to UTC if no timezone provided
+    return this.insightsService.getDashboardInsights(
+      user.id,
+      timezone || 'UTC',
+    );
   }
 }

@@ -1,8 +1,14 @@
 import api from "./api";
 
+// Gets the user's local timezone (e.g. "Asia/Kolkata")
+const getTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 export const insightsApi = {
   getDashboard: async () => {
-    const { data } = await api.get("/insights/dashboard");
+    const timezone = getTimezone();
+    const { data } = await api.get(
+      `/insights/dashboard?timezone=${encodeURIComponent(timezone)}`,
+    );
     return data.data ?? data;
   },
 

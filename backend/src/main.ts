@@ -27,9 +27,37 @@ async function bootstrap() {
 
   // CORS — allow the Next.js frontend
   app.enableCors({
-    origin: [frontendUrl, 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+
+      const allowed = [
+        // Local development
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        // Your Vercel URLs — add your exact URL here
+        process.env.FRONTEND_URL,
+        // Allow ALL Vercel preview deployments for this project
+        /^https:\/\/.*\.vercel\.app$/,
+      ];
+
+      const isAllowed = allowed.some((pattern) => {
+        if (!pattern) return false;
+        if (pattern instanceof RegExp) return pattern.test(origin);
+        return pattern === origin;
+      });
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        console.log(`CORS blocked: ${origin}`); // shows in Render logs
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Global validation pipe — runs class-validator on all DTOs
