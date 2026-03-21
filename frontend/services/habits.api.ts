@@ -3,30 +3,28 @@ import type { Habit, CreateHabitPayload, HabitLog, HabitStats } from "@/types/ha
 
 export const habitsApi = {
   getAll: async (): Promise<Habit[]> => {
-    const { data } = await api.get<Habit[]>("/habits");
-    return data;
+    const { data } = await api.get("/habits");
+    return data.data ?? data;
   },
 
   getById: async (id: string): Promise<Habit> => {
-    const { data } = await api.get<Habit>(`/habits/${id}`);
-    return data;
+    const { data } = await api.get(`/habits/${id}`);
+    return data.data ?? data;
   },
 
   create: async (payload: CreateHabitPayload): Promise<Habit> => {
-    const { data } = await api.post<Habit>("/habits", payload);
-    return data;
+    const { data } = await api.post("/habits", payload);
+    return data.data ?? data;
   },
 
-  // Check off a habit for today — main interaction
   checkIn: async (id: string, note?: string): Promise<{ habit: Habit; log: HabitLog; xpAwarded: number }> => {
     const { data } = await api.post(`/habits/${id}/check-in`, { note });
-    return data;
+    return data.data ?? data;
   },
 
-  // Undo today's check-in
   undoCheckIn: async (id: string): Promise<Habit> => {
-    const { data } = await api.delete<Habit>(`/habits/${id}/check-in/today`);
-    return data;
+    const { data } = await api.delete(`/habits/${id}/check-in/today`);
+    return data.data ?? data;
   },
 
   delete: async (id: string): Promise<void> => {
@@ -34,12 +32,12 @@ export const habitsApi = {
   },
 
   getLogs: async (id: string): Promise<HabitLog[]> => {
-    const { data } = await api.get<HabitLog[]>(`/habits/${id}/logs`);
-    return data;
+    const { data } = await api.get(`/habits/${id}/logs`);
+    return data.data ?? data;
   },
 
   getStats: async (): Promise<HabitStats> => {
-    const { data } = await api.get<HabitStats>("/habits/stats");
-    return data;
+    const { data } = await api.get("/habits/stats");
+    return data.data ?? data;
   },
 };

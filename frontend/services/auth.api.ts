@@ -1,26 +1,26 @@
 import api from "./api";
 import type { LoginPayload, RegisterPayload, AuthResponse, User } from "@/types/auth.types";
 
+// Backend wraps all responses: { success: true, data: { user, accessToken } }
+// We need to unwrap the .data layer
 export const authApi = {
   login: async (payload: LoginPayload): Promise<AuthResponse> => {
-    const { data } = await api.post<AuthResponse>("/auth/login", payload);
-    return data;
+    const { data } = await api.post("/auth/login", payload);
+    // data here is axios response.data = { success, data: AuthResponse }
+    return data.data ?? data;
   },
 
   register: async (payload: RegisterPayload): Promise<AuthResponse> => {
-    const { data } = await api.post<AuthResponse>("/auth/register", payload);
-    return data;
+    const { data } = await api.post("/auth/register", payload);
+    return data.data ?? data;
   },
 
   getMe: async (): Promise<User> => {
-    const { data } = await api.get<User>("/auth/me");
-    return data;
+    const { data } = await api.get("/auth/me");
+    return data.data ?? data;
   },
 
   logout: async (): Promise<void> => {
-    // Call backend to invalidate refresh token (if implemented)
-    await api.post("/auth/logout").catch(() => {
-      // Silently fail — we'll clear local state regardless
-    });
+    await api.post("/auth/logout").catch(() => {});
   },
 };

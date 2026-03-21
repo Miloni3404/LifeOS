@@ -12,31 +12,28 @@ export interface GetTasksParams {
 
 export const tasksApi = {
   getAll: async (params?: GetTasksParams): Promise<PaginatedResponse<Task>> => {
-    const { data } = await api.get<PaginatedResponse<Task>>("/tasks", { params });
-    return data;
+    const { data } = await api.get("/tasks", { params });
+    return data.data ?? data;
   },
 
   getById: async (id: string): Promise<Task> => {
-    const { data } = await api.get<Task>(`/tasks/${id}`);
-    return data;
+    const { data } = await api.get(`/tasks/${id}`);
+    return data.data ?? data;
   },
 
   create: async (payload: CreateTaskPayload): Promise<Task> => {
-    const { data } = await api.post<Task>("/tasks", payload);
-    return data;
+    const { data } = await api.post("/tasks", payload);
+    return data.data ?? data;
   },
 
   update: async (id: string, payload: UpdateTaskPayload): Promise<Task> => {
-    const { data } = await api.patch<Task>(`/tasks/${id}`, payload);
-    return data;
+    const { data } = await api.patch(`/tasks/${id}`, payload);
+    return data.data ?? data;
   },
 
-  // Quick complete — special endpoint that also awards XP
   complete: async (id: string): Promise<{ task: Task; xpAwarded: number }> => {
-    const { data } = await api.patch<{ task: Task; xpAwarded: number }>(
-      `/tasks/${id}/complete`
-    );
-    return data;
+    const { data } = await api.patch(`/tasks/${id}/complete`);
+    return data.data ?? data;
   },
 
   delete: async (id: string): Promise<void> => {
@@ -44,7 +41,7 @@ export const tasksApi = {
   },
 
   getStats: async (): Promise<TaskStats> => {
-    const { data } = await api.get<TaskStats>("/tasks/stats");
-    return data;
+    const { data } = await api.get("/tasks/stats");
+    return data.data ?? data;
   },
 };

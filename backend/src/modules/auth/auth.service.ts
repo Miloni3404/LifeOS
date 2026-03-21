@@ -52,7 +52,7 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const user = await this.usersService.create({
       email: dto.email,
-      name: dto.name,
+      name: dto.name ?? '',
       password: dto.password,
     });
 
