@@ -1,7 +1,6 @@
 "use client";
 
 import { useAppSelector } from "@/store/store";
-import { clsx } from "clsx";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
@@ -12,32 +11,15 @@ export default function DashboardLayoutClient({
 }: {
   children: React.ReactNode;
 }) {
-  const sidebarOpen = useAppSelector((state) => state.ui.sidebarOpen);
-
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-slate-50 overflow-hidden">
-        {/* Sidebar */}
+      <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden transition-colors duration-200">
         <Sidebar />
-
-        {/* Main area */}
         <div className="flex flex-col flex-1 overflow-hidden">
-          {/* Navbar */}
           <Navbar />
-
-          {/* Page content — scrollable */}
-          <main
-            className={clsx(
-              "flex-1 overflow-y-auto transition-all duration-300",
-              "p-4 lg:p-6"
-            )}
-          >
-            {children}
-          </main>
+          <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
         </div>
       </div>
-
-      {/* Toast notifications — renders outside the layout flow */}
       <ToastContainer />
     </ProtectedRoute>
   );

@@ -7,6 +7,7 @@ export interface User {
   level: number;
   xp: number;
   xpToNextLevel: number;
+  totalXp: number;  
   streak: number;
   createdAt: string;
 }

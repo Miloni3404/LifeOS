@@ -88,6 +88,7 @@ export class InsightsService {
     return {
       totalCreated: tasks.length,
       totalCompleted: completedTasks.length,
+      pending: tasks.length - completedTasks.length,
       completionRate:
         tasks.length > 0
           ? Math.round((completedTasks.length / tasks.length) * 100)

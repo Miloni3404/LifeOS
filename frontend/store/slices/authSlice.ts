@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// What a logged-in user looks like
 interface User {
   id: string;
   email: string;
@@ -8,7 +7,10 @@ interface User {
   avatar?: string;
   level: number;
   xp: number;
+  xpToNextLevel: number;
+  totalXp: number;
   streak: number;
+  createdAt: string;
 }
 
 interface AuthState {
@@ -22,14 +24,17 @@ const initialState: AuthState = {
   user: null,
   token: null,
   isAuthenticated: false,
-  isLoading: true,  // true on start because we check localStorage
+  isLoading: true,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ user: User; token: string }>) => {
+    setCredentials: (
+      state,
+      action: PayloadAction<{ user: User; token: string }>,
+    ) => {
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
@@ -52,5 +57,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, logout, setLoading, updateUser } = authSlice.actions;
+export const { setCredentials, logout, setLoading, updateUser } =
+  authSlice.actions;
 export default authSlice.reducer;

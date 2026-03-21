@@ -1,22 +1,33 @@
 /* eslint-disable react/no-unescaped-entities */
-// Server Component — no interactivity needed here
-import type { Metadata } from "next";
+/* eslint-disable react-hooks/set-state-in-effect */
+"use client";
 
-export const metadata: Metadata = {
-  title: "Sign In",
-  description: "Sign in to LifeOS",
-};
+import { useState, useEffect } from "react";
+
+// Can't export metadata from client component — move to separate file
+// export const metadata: Metadata = { title: "Sign In" };
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Render a neutral shell on server — avoids gradient mismatch with MUI emotion
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-8 h-8 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex">
-      {/* LEFT SIDE — Branding panel */}
+      {/* LEFT — Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-12 flex-col justify-between">
-        {/* Logo */}
         <div>
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">🚀</span>
@@ -27,7 +38,6 @@ export default function AuthLayout({
           </p>
         </div>
 
-        {/* Feature highlights */}
         <div className="space-y-6">
           {[
             {
@@ -63,19 +73,19 @@ export default function AuthLayout({
           ))}
         </div>
 
-        {/* Footer quote */}
         <p className="text-indigo-300 text-sm italic">
           "The secret of getting ahead is getting started."
         </p>
       </div>
 
-      {/* RIGHT SIDE — Form panel */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50">
+      {/* RIGHT — Form */}
+      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-900">
         <div className="w-full max-w-md">
-          {/* Mobile logo — shown only on small screens */}
           <div className="flex items-center gap-2 mb-8 lg:hidden">
             <span className="text-2xl">🚀</span>
-            <span className="text-xl font-bold text-slate-900">LifeOS</span>
+            <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              LifeOS
+            </span>
           </div>
           {children}
         </div>

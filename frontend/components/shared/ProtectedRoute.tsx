@@ -1,35 +1,47 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import Loader from "@/components/ui/Loader";
+import { useAppSelector } from "@/store/store";
 
-interface ProtectedRouteProps {
+export default function ProtectedRoute({
+  children,
+}: {
   children: React.ReactNode;
-}
-
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+}) {
   const router = useRouter();
+  const { isAuthenticated, isLoading } = useAppSelector((s) => s.auth);
+  const redirected = useRef(false);
+
+  // mounted ensures server and client render the SAME thing on first paint (null)
+  // Only AFTER mount do we show the loader or children
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
-    // Wait until loading is done, then redirect if not authenticated
-    if (!isLoading && !isAuthenticated) {
+    if (mounted && !isLoading && !isAuthenticated && !redirected.current) {
+      redirected.current = true;
       router.replace("/auth/login");
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [mounted, isLoading, isAuthenticated, router]);
 
-  // While checking auth state — show spinner
+  // Server + client first paint = identical null → no hydration mismatch
+  if (!mounted) return null;
+
   if (isLoading) {
-    return <Loader fullScreen text="Loading your LifeOS..." />;
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-900" style={{ zIndex: 9999 }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-sm text-slate-500">Loading your LifeOS...</p>
+        </div>
+      </div>
+    );
   }
 
-  // Not authenticated — show nothing (redirect is happening)
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
-  // Authenticated — render the children
   return <>{children}</>;
 }

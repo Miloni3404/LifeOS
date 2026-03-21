@@ -7,8 +7,7 @@ export default function XPBar() {
 
   if (!user) return null;
 
-  const { xp, level } = user;
-  const xpToNextLevel = 1000
+  const { xp, level, xpToNextLevel } = user;
   const percentage = Math.min((xp / xpToNextLevel) * 100, 100);
 
   return (
