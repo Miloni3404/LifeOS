@@ -38,6 +38,7 @@ async function bootstrap() {
         'http://localhost:3002',
         // Your Vercel URLs — add your exact URL here
         process.env.FRONTEND_URL,
+        'https://lifeos-backend-qy75.onrender.com',
         // Allow ALL Vercel preview deployments for this project
         /^https:\/\/.*\.vercel\.app$/,
       ];
