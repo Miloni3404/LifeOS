@@ -255,7 +255,7 @@ export default function DashboardPage() {
       {/* ── Stats grid ── */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <StatsCard
-          title="Tasks today"
+          title="Pending Tasks today"
           value={taskStats?.pending ?? 0}
           subtitle={`${taskStats?.completed ?? 0} completed`}
           icon="✅"
@@ -450,7 +450,7 @@ export default function DashboardPage() {
         {/* Streak summary */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-5">
           <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-4">
-            Your streaks
+            Your Habit Streaks
           </h3>
           {habits.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-4">
@@ -491,7 +491,7 @@ export default function DashboardPage() {
         {/* Quick stats */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-5 lg:col-span-2">
           <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-4">
-            Quick overview
+            Quick overview - Tasks
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Injectable,
   NotFoundException,
@@ -27,41 +24,35 @@ export class HabitsService {
     private readonly logsService: LogsService,
   ) {}
 
-  private getTodayRange(timezone = 'UTC'): { start: Date; end: Date } {
+  private getTodayRange(timezone = 'Asia/Kolkata'): { start: Date; end: Date } {
     const now = new Date();
-    const formatter = new Intl.DateTimeFormat('en-CA', {
+
+    // Step 1: Get date parts in target timezone
+    const parts = new Intl.DateTimeFormat('en-CA', {
       timeZone: timezone,
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
-    });
-    const localDate = formatter.format(now); // "2026-03-21"
+    }).formatToParts(now);
 
-    // Parse as local midnight → convert to UTC
-    const start = new Date(`${localDate}T00:00:00`);
-    const end = new Date(`${localDate}T23:59:59.999`);
+    const year = parts.find((p) => p.type === 'year')!.value;
+    const month = parts.find((p) => p.type === 'month')!.value;
+    const day = parts.find((p) => p.type === 'day')!.value;
 
-    // Adjust for timezone offset
-    const offsetMs = now.getTimezoneOffset() * 60 * 1000; // server is UTC so offset=0
-    // Use Intl to get the actual UTC times for local midnight
-    const startUTC = new Date(
-      new Intl.DateTimeFormat('en-US', {
-        timeZone: timezone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      }).format(now),
+    // Step 2: Construct LOCAL midnight in that timezone (as string)
+    const localStartStr = `${year}-${month}-${day}T00:00:00`;
+    const localEndStr = `${year}-${month}-${day}T23:59:59.999`;
+
+    // Step 3: Convert that timezone time → UTC Date
+    const start = new Date(
+      new Date(localStartStr).toLocaleString('en-US', { timeZone: 'UTC' }),
     );
-    const utcStart = new Date(now);
-    utcStart.setUTCHours(0, 0, 0, 0);
-    const utcEnd = new Date(now);
-    utcEnd.setUTCHours(23, 59, 59, 999);
 
-    return { start: utcStart, end: utcEnd };
+    const end = new Date(
+      new Date(localEndStr).toLocaleString('en-US', { timeZone: 'UTC' }),
+    );
+
+    return { start, end };
   }
 
   // Get habits with today's completion status

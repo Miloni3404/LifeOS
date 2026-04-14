@@ -5,7 +5,6 @@ import { Task } from '@modules/tasks/entities/task.entity';
 import { HabitLog } from '@modules/habits/entities/habit-log.entity';
 import { ActivityLog } from '@modules/logs/entities/activity-log.entity';
 import { MoodLog } from '@modules/logs/entities/mood-log.entity';
-import { subDays } from 'date-fns';
 
 @Injectable()
 export class InsightsService {
@@ -73,7 +72,10 @@ export class InsightsService {
   // ── Main entry point ────────────────────────────────────────────────────────
 
   async getDashboardInsights(userId: string, timezone = 'UTC') {
-    const thirtyDaysAgo = subDays(new Date(), 30);
+    // const thirtyDaysAgo = subDays(new Date(), 30);
+    const { start } = this.getTodayRange(timezone);
+    const thirtyDaysAgo = new Date(start);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const [taskStats, habitStats, moodStats, productiveHours] =
       await Promise.all([
@@ -96,6 +98,23 @@ export class InsightsService {
         timeStyle: 'short',
       }).format(new Date()),
     };
+  }
+
+  private getTodayRange(timezone = 'Asia/Kolkata'): { start: Date; end: Date } {
+    const now = new Date();
+
+    // Convert current time → target timezone
+    const tzNow = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
+
+    // Start of day
+    tzNow.setHours(0, 0, 0, 0);
+    const start = new Date(tzNow);
+
+    // End of day
+    tzNow.setHours(23, 59, 59, 999);
+    const end = new Date(tzNow);
+
+    return { start, end };
   }
 
   // ── Task insights ───────────────────────────────────────────────────────────
@@ -162,13 +181,17 @@ export class InsightsService {
       order: { completedAt: 'ASC' },
     });
 
+    // const averagePerWeek = Math.round((logs.length / 4) * 10) / 10
+    const weeks = (Date.now() - since.getTime()) / (7 * 24 * 60 * 60 * 1000);
+    const averagePerWeek = Math.round((logs.length / weeks) * 10) / 10;
+
     return {
       totalCheckIns: logs.length,
       checkInsPerDay: this.groupByDay(
         logs.map((l) => l.completedAt),
         tz,
       ),
-      averagePerWeek: Math.round((logs.length / 4) * 10) / 10,
+      averagePerWeek,
     };
   }
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Column,
   CreateDateColumn,
@@ -45,6 +44,6 @@ export class ActivityLog {
   @Column({ type: 'json', nullable: true })
   metadata?: Record<string, any>; // extra data (streak count, level, etc.)
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

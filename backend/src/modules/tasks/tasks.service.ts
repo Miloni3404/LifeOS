@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { GamificationService } from '@modules/gamification/gamification.service';
 import { LogsService } from '@modules/logs/logs.service';
 import {
